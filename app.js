@@ -49,7 +49,7 @@ const add_tweet = async () => {
   await topics.forEach(async topic => {
     let feed = await parser.parseURL(`https://hnrss.org/newest?q=${topic}`);
     for (i = 0; i < 2; i++) {
-      if (new_tweet_content.length === 20) break;
+      if (new_tweet_content.length >= 20) break;
       const c =
         feed['items'][i]['title'] +
         ' ' +
