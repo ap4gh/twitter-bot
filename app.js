@@ -36,7 +36,7 @@ const send = async () => {
   bot.post('statuses/update', { status: t }, function(err, data, response) {
     if (err) console.log(err.message);
     console.log(
-      `${new Date(data.created_at).toString()} Tweet Sent: ${data.id}\n`
+      `${new Date(data.created_at).toString()} Tweet Sent: ${data.id}`
     );
   });
 };
