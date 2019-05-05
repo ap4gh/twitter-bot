@@ -27,7 +27,10 @@ const topics = [
   'golang',
   'devops',
   'css',
-  'c'
+  'c',
+  'mongodb',
+  'webdesign',
+  'privacy'
 ];
 
 const send = async () => {
@@ -45,11 +48,12 @@ const add_tweet = async () => {
   await topics.forEach(async topic => {
     let feed = await parser.parseURL(`https://hnrss.org/newest?q=${topic}`);
     for (i = 0; i < 2; i++) {
+      if (new_tweet_content.length === 20) break;
       const c =
         feed['items'][i]['title'] +
         ' ' +
         feed['items'][i]['link'] +
-        ` #${topic}`;
+        `\n#${topic}`;
       if (!new_tweet_content.includes(c) && !old_tweet_content.includes(c)) {
         new_tweet_content.push(c);
       }
@@ -58,5 +62,5 @@ const add_tweet = async () => {
 };
 
 add_tweet();
-setInterval(add_tweet, 19 * 60 * 1000);
-setInterval(send, 10 * 60 * 1000);
+setInterval(add_tweet, 200 * 60 * 1000);
+setInterval(send, 20 * 60 * 1000);
