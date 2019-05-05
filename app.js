@@ -34,6 +34,7 @@ const topics = [
 ];
 
 const send = async () => {
+  if (new_tweet_content.length === 0) add_tweet();
   const t = new_tweet_content.shift();
   old_tweet_content.push(t);
   bot.post('statuses/update', { status: t }, function(err, data, response) {
