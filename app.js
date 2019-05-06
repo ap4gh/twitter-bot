@@ -5,6 +5,8 @@ const rss_parser = require('rss-parser');
 const API_KEYS = require('./api_keys.json');
 const tweets = fs.readFileSync('tweets.json');
 const old_tweets = JSON.parse(tweets)['tweets'];
+let last_tweet_topic = '';
+const interval = 35;
 
 const bot = new twit({
   consumer_key: API_KEYS['consumer_key'],
@@ -31,6 +33,8 @@ const topics = [
 const randomContent = async () => {
   let tweet;
   const topic = topics[Math.floor(Math.random() * topics.length)];
+  if (last_tweet_topic === topic) return randomContent();
+  last_tweet_topic = topic;
   let feed = await parser.parseURL(`https://hnrss.org/newest?q=${topic}`);
   for (let i = 0; i < 4; i++) {
     tweet = `${feed['items'][i]['title']} ${
@@ -56,4 +60,4 @@ const send = async () => {
 };
 
 process.stdout.write('Process started ...\n');
-setInterval(send, 22.5 * 60 * 1000);
+setInterval(send, interval * 60 * 1000);
