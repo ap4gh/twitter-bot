@@ -1,7 +1,10 @@
+const fs = require('fs');
 const twit = require('twit');
 const rss_parser = require('rss-parser');
 
 const API_KEYS = require('./api_keys.json');
+const tweets = fs.readFileSync('tweets.json');
+const old_tweets = JSON.parse(tweets)['tweets'];
 
 const bot = new twit({
   consumer_key: API_KEYS['consumer_key'],
@@ -14,54 +17,43 @@ const bot = new twit({
 
 const parser = new rss_parser();
 
-const new_tweet_content = [];
-const old_tweet_content = [];
-
 const topics = [
   'javascript',
   'reactjs',
   'nodejs',
-  'linux',
   'webdev',
   'python',
   'golang',
-  'devops',
-  'css',
-  'c',
   'mongodb',
-  'webdesign',
-  'privacy'
+  'webdesign'
 ];
 
+const randomContent = async () => {
+  let tweet;
+  const topic = topics[Math.floor(Math.random() * topics.length)];
+  let feed = await parser.parseURL(`https://hnrss.org/newest?q=${topic}`);
+  for (let i = 0; i < 4; i++) {
+    tweet = `${feed['items'][i]['title']} ${
+      feed['items'][i]['link']
+    }\n\n#${topic}`;
+    if (!old_tweets.includes(tweet)) break;
+  }
+  if (old_tweets.includes(tweet)) return randomContent();
+  return tweet;
+};
+
 const send = async () => {
-  if (new_tweet_content.length === 0) add_tweet();
-  const t = new_tweet_content.shift();
-  old_tweet_content.push(t);
+  const t = await randomContent();
+  old_tweets.push(t);
   bot.post('statuses/update', { status: t }, function(err, data, response) {
     if (err) console.log(err.message);
+    const tweets_data = JSON.stringify({ tweets: old_tweets });
+    fs.writeFileSync('tweets.json', tweets_data);
     console.log(
-      `${new Date(data.created_at).toString()} Tweet Sent: ${data.id}`
+      `${new Date(data.created_at).toTimeString()} Tweet Sent: ${data.id}`
     );
   });
 };
 
-const add_tweet = async () => {
-  await topics.forEach(async topic => {
-    let feed = await parser.parseURL(`https://hnrss.org/newest?q=${topic}`);
-    for (i = 0; i < 2; i++) {
-      if (new_tweet_content.length >= 20) break;
-      const c =
-        feed['items'][i]['title'] +
-        ' ' +
-        feed['items'][i]['link'] +
-        `\n#${topic}`;
-      if (!new_tweet_content.includes(c) && !old_tweet_content.includes(c)) {
-        new_tweet_content.push(c);
-      }
-    }
-  });
-};
-
-add_tweet();
-setInterval(add_tweet, 200 * 60 * 1000);
-setInterval(send, 20 * 60 * 1000);
+process.stdout.write('Process started ...\n');
+setInterval(send, 22.5 * 60 * 1000);
