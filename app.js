@@ -31,7 +31,7 @@ const randomContent = async () => {
 
   let feed = await parser.parseURL(`https://hnrss.org/newest?q=${topic}`);
 
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 10; i++) {
     t = `${feed['items'][i]['title']} ${feed['items'][i]['link']}\n\n#${topic}`;
     if (!oldTweets.includes(t)) break;
   }
