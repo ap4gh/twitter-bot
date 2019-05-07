@@ -17,7 +17,7 @@ const bot = new twit({
   strictSSL: false
 });
 
-const parser = new rss_parser();
+const interval = 45;
 
 const topics = [
   'javascript',
